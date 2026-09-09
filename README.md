@@ -1,181 +1,211 @@
 # NEXORA NIGERIA — Civic Member Registration Portal
 
-A full-stack civic member registration and digital identity platform built with **React + Vite** (frontend) and **Node.js + Express** (backend).
-
-[![Deploy Status](https://img.shields.io/badge/deploy-GitHub%20Pages-0d9488?logo=github)](https://github.com)
+Full-stack civic registration platform with a React + Vite frontend, Vercel serverless API routes, Supabase PostgreSQL database, and Supabase Storage for member photos.
 
 ---
 
-## ✨ Features
+## Architecture
 
-| Feature | Details |
-|---|---|
-| Multi-step registration form | Identity → Location → Photo & Agreement |
-| Digital Membership ID Card | Auto-generated front & back card with member photo, barcode, QR |
-| Print / Download | Opens a print-ready card window directly in the browser |
-| Confirmation email | Nodemailer sends a branded HTML email on every registration |
-| Login modal | Existing members can sign in |
-| Camera capture | Take a photo directly from the browser |
-| Responsive design | Works on mobile, tablet, and desktop |
-| Color theme | Deep Navy Blue + Electric Teal + Amber |
+```
+Browser (React / Vite)
+       │
+       ▼
+Vercel CDN  →  /dist  (static frontend)
+       │
+       ▼
+Vercel Functions  →  /api/register   /api/login   /api/health
+       │
+       ▼
+Supabase
+  ├── PostgreSQL  →  members table
+  └── Storage     →  member-photos bucket
+```
 
 ---
 
-## 🗂 Project Structure
+## Project Structure
 
 ```
 nexora-registration/
-├── src/                        # React frontend
+├── api/                        ← Vercel serverless functions
+│   ├── _lib/
+│   │   ├── supabase.js         ← Supabase admin client
+│   │   └── email.js            ← Nodemailer helper
+│   ├── register.js             ← POST /api/register
+│   ├── login.js                ← POST /api/login
+│   └── health.js               ← GET  /api/health
+├── src/                        ← React frontend
 │   ├── components/
-│   │   ├── Navbar.jsx          # Sticky top nav + tab bar
-│   │   ├── LeftColumn.jsx      # Branding, entitlements, sample ID card
-│   │   ├── RegistrationForm.jsx# 3-step form + login modal
-│   │   ├── MembershipCard.jsx  # Generated ID card shown after registration
-│   │   └── Footer.jsx          # Footer + newsletter strip
-│   ├── data/
-│   │   └── nigeriaData.js      # All 37 States, LGAs, Wards, Affiliations
-│   ├── App.jsx
-│   ├── App.module.css
-│   ├── index.css               # Global CSS variables (single source of truth)
-│   └── main.jsx
-├── server/
-│   ├── index.js                # Express API
-│   ├── emailTemplates.js       # HTML email template
-│   └── package.json
-├── public/
-│   └── favicon.svg
-├── index.html
+│   │   ├── Navbar.jsx
+│   │   ├── LeftColumn.jsx
+│   │   ├── RegistrationForm.jsx
+│   │   ├── RegistrationLoader.jsx
+│   │   ├── MembershipCard.jsx
+│   │   └── Footer.jsx
+│   ├── data/nigeriaData.js
+│   ├── index.css               ← CSS variables (single palette source)
+│   └── App.jsx
+├── server/                     ← Local-dev Express server (not deployed)
+├── .env.example                ← Copy to .env and fill in secrets
+├── vercel.json                 ← Vercel config
 ├── vite.config.js
 └── package.json
 ```
 
 ---
 
-## 🚀 Running Locally
+## 1 — Supabase Setup (do this first)
 
-### 1 — Install frontend dependencies
+### Create project
+1. Go to [supabase.com](https://supabase.com) → New project
+2. Note your **Project URL** and **API keys** (Settings → API)
+
+### Create the `members` table
+Run this in the Supabase **SQL Editor**:
+
+```sql
+create table members (
+  id           uuid primary key default gen_random_uuid(),
+  ref          text unique not null,
+  given_names  text not null,
+  surname      text not null,
+  dob          date not null,
+  gender       text not null,
+  email        text unique not null,
+  phone        text not null,
+  state        text not null,
+  lga          text not null,
+  ward         text not null,
+  pvc          text,
+  affiliation  text,
+  address      text,
+  photo_url    text,
+  created_at   timestamptz default now()
+);
+
+-- Enable Row Level Security and allow service role full access
+alter table members enable row level security;
+create policy "service role full access" on members
+  using (true) with check (true);
+```
+
+### Create the `member-photos` storage bucket
+1. Supabase Dashboard → **Storage** → New bucket
+2. Name: `member-photos`
+3. Keep **Public**: OFF (photos are accessed via signed URLs)
+
+---
+
+## 2 — Local Development
+
+### Install dependencies
 ```bash
 npm install
 ```
 
-### 2 — Start the frontend dev server
+### Set up environment variables
+```bash
+cp .env.example .env
+# Fill in SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, etc.
+```
+
+### Run frontend (Vite dev server)
 ```bash
 npm run dev
 # → http://localhost:3000
 ```
 
-### 3 — Start the backend (separate terminal)
+### Run local API server (optional — mirrors production)
 ```bash
-cd server
-npm install
-npm start
+npm run server
 # → http://localhost:5000
 ```
 
-> The Vite dev server automatically proxies all `/api` requests to `localhost:5000`.
+> Vite proxies `/api/*` to `localhost:5000` in dev so the same fetch URLs work everywhere.
 
 ---
 
-## 📧 Email Configuration
+## 3 — Deploy to Vercel
 
-By default the server uses a free **Ethereal** catch-all account — no real email is sent.  
-After each registration the console prints a **preview URL**:
-
-```
-📬  Email preview (Ethereal): https://ethereal.email/message/...
-```
-
-To send **real emails**, set these environment variables before starting the server:
-
-```bash
-# server/.env  (never commit this file)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=you@gmail.com
-SMTP_PASS=your-app-password
-FRONTEND_URL=https://yourdomain.com
-```
-
----
-
-## 🌐 Deploying to GitHub Pages
-
-### Step 1 — Create your GitHub repository
+### Step 1 — Push to GitHub
 ```bash
 git init
 git add .
-git commit -m "feat: initial NEXORA registration portal"
+git commit -m "feat: NEXORA civic registration portal"
 git branch -M main
 git remote add origin https://github.com/YOUR_USERNAME/nexora-registration.git
 git push -u origin main
 ```
 
-### Step 2 — Set your repo name in `vite.config.js`
-Open `vite.config.js` and update:
-```js
-const REPO_NAME = '/nexora-registration'   // ← must match your GitHub repo name exactly
-```
-For a **custom domain** or a `username.github.io` repo, set it to `'/'`.
+### Step 2 — Import on Vercel
+1. [vercel.com](https://vercel.com) → **Add New Project** → Import your GitHub repo
+2. Framework preset: **Vite** (auto-detected)
+3. Build command: `npm run build`  |  Output directory: `dist`
 
-### Step 3 — Deploy
+### Step 3 — Add Environment Variables on Vercel
+In the Vercel project → **Settings → Environment Variables**, add:
+
+| Variable | Value |
+|---|---|
+| `SUPABASE_URL` | `https://xxxx.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | your service_role key |
+| `SMTP_HOST` | e.g. `smtp.gmail.com` |
+| `SMTP_PORT` | `587` |
+| `SMTP_SECURE` | `false` |
+| `SMTP_USER` | your Gmail address |
+| `SMTP_PASS` | your 16-char Google App Password |
+| `FRONTEND_URL` | `https://YOUR_PROJECT.vercel.app` |
+
+> If `SMTP_*` vars are not set, Nodemailer falls back to an Ethereal test account and logs a preview URL to the Vercel function logs.
+
+### Step 4 — Deploy
 ```bash
-npm run deploy
-```
-This runs `npm run build` then pushes the `dist/` folder to the `gh-pages` branch automatically.
-
-### Step 4 — Enable GitHub Pages
-1. Go to your repo on GitHub → **Settings** → **Pages**
-2. Under **Source**, select **Branch: `gh-pages`** → **/ (root)**
-3. Click **Save**
-
-Your site will be live at:
-```
-https://YOUR_USERNAME.github.io/nexora-registration/
-```
-
-### Re-deploying
-Every time you push changes and want to update the live site:
-```bash
-npm run deploy
+# Vercel auto-deploys on every push to main.
+# Or trigger manually:
+vercel --prod
 ```
 
 ---
 
-## 🔧 Customisation
+## 4 — Email Setup (Gmail)
+
+1. Google Account → Security → **2-Step Verification** → enable
+2. Security → **App Passwords** → create one for "Mail"
+3. Use the 16-character password as `SMTP_PASS`
+
+---
+
+## 5 — API Reference
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/register` | Register a new member (multipart/form-data) |
+| `POST` | `/api/login` | Member sign-in (JSON) |
+| `GET` | `/api/health` | Health check + member count |
+
+---
+
+## 6 — Customisation
 
 | What | Where |
 |---|---|
-| Change brand colors | `src/index.css` — edit CSS variables in `:root` |
-| Add more Nigerian states/LGAs | `src/data/nigeriaData.js` |
-| Change org name / branding | `src/components/Navbar.jsx` and `src/components/LeftColumn.jsx` |
-| Switch to a real database | `server/index.js` — replace the `members[]` array |
-| Add password hashing | Install `bcryptjs`, hash on register, compare on login |
-| Add JWT auth | Install `jsonwebtoken`, issue token on successful login |
+| Brand colors | `src/index.css` `:root` CSS variables |
+| Nigerian states / LGAs | `src/data/nigeriaData.js` |
+| Org name / branding | `src/components/Navbar.jsx`, `LeftColumn.jsx` |
+| Email template | `api/_lib/email.js` `buildHtml()` |
+| Add password auth | Add `password_hash` column to Supabase, install `bcryptjs` |
+| Add JWT sessions | Install `jsonwebtoken`, issue token on login |
 
 ---
 
-## 🔒 Security Notes
+## Security Notes
 
-- **Never commit** `.env`, `server/.env`, or `server/uploads/` — all are in `.gitignore`
-- The backend uses an **in-memory store** — data is lost on restart. Plug in MongoDB or PostgreSQL for production
-- Add **bcrypt** password hashing before deploying the login endpoint publicly
-- The frontend-only GitHub Pages build does **not** include the backend — deploy the `server/` folder separately (Railway, Render, Fly.io, etc.) and update the `FRONTEND_URL` + Vite proxy target
-
----
-
-## 🏗 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 18, Vite 5, CSS Modules |
-| Backend | Node.js 20+, Express 4, Multer, Nodemailer |
-| Deployment | GitHub Pages (frontend), any Node host (backend) |
-| Styling | Pure CSS custom properties — no CSS framework |
+- **Never commit `.env`** — it's in `.gitignore`
+- **Service role key** stays server-side only (`api/_lib/supabase.js`)
+- **Anon key** (`VITE_SUPABASE_ANON_KEY`) is the only Supabase key safe to expose to the browser
+- Enable **Row Level Security** on all Supabase tables before going live
+- Add **bcrypt** password hashing before enabling the login endpoint publicly
 
 ---
 
-## 📄 License
-
-© 2025 NEXORA NIGERIA. Federal Civic Registry Infrastructure.  
-All rights reserved.
+© 2025 NEXORA NIGERIA. Federal Civic Registry Infrastructure.

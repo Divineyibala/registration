@@ -261,8 +261,10 @@ export default function RegistrationForm() {
       // Stash the result — loader will reveal it once animation completes
       setPendingMember({
         ...form,
-        ref:       data.ref,
-        createdAt: new Date().toISOString(),
+        ref:        data.ref,
+        createdAt:  data.createdAt || new Date().toISOString(),
+        // Use Supabase-stored photo URL if available, fall back to local preview
+        photoPreview: data.photoUrl || form.photoPreview,
       })
     } catch {
       setShowLoader(false)

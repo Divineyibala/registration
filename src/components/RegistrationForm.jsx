@@ -225,22 +225,40 @@ export default function RegistrationForm() {
     setSubmitting(true)
     setShowLoader(true)
     try {
-      const fd = new FormData()
-      Object.entries(form).forEach(([k, v]) => {
-        if (k === 'photoPreview') return          // never send the object URL
-        if (k === 'photo') {
-          if (v) fd.append('photo', v, 'photo.jpg')  // blob/file only if set
-          return
-        }
-        if (k === 'agree') {
-          fd.append('agree', v ? 'true' : 'false')   // explicit string 'true'/'false'
-          return
-        }
-        if (v !== null && v !== undefined) {
-          fd.append(k, String(v))
-        }
+      // Convert photo blob/file to base64 so we can send pure JSON
+      // (Vercel serverless functions work best with JSON, not multipart)
+      let photoBase64 = null
+      if (form.photo) {
+        photoBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload  = () => resolve(reader.result)   // "data:image/jpeg;base64,..."
+          reader.onerror = reject
+          reader.readAsDataURL(form.photo)
+        })
+      }
+
+      const payload = {
+        givenNames:   form.givenNames,
+        surname:      form.surname,
+        dob:          form.dob,
+        gender:       form.gender,
+        email:        form.email,
+        phone:        form.phone,
+        state:        form.state,
+        lga:          form.lga,
+        ward:         form.ward,
+        pvc:          form.pvc          || '',
+        affiliation:  form.affiliation  || '',
+        address:      form.address      || '',
+        agree:        form.agree ? 'true' : 'false',
+        photoBase64,
+      }
+
+      const res = await fetch('/api/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
       })
-      const res  = await fetch('/api/register', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
         setShowLoader(false)

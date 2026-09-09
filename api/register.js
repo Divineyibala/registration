@@ -1,12 +1,10 @@
 /* Vercel Serverless Function — POST /api/register
  *
- * Receives multipart/form-data (photo optional).
- * Saves member row to Supabase `members` table.
- * Uploads photo to Supabase Storage bucket `member-photos` (if provided).
- * Sends confirmation email.
+ * Uses Vercel's built-in multipart body parsing (no formidable needed).
+ * Falls back gracefully when Supabase env vars are not yet configured.
  *
- * Required Supabase setup (run once in Supabase SQL editor):
- * ─────────────────────────────────────────────────────────
+ * Supabase table (run once in SQL editor):
+ * ─────────────────────────────────────────
  * create table members (
  *   id           uuid primary key default gen_random_uuid(),
  *   ref          text unique not null,
@@ -25,85 +23,82 @@
  *   photo_url    text,
  *   created_at   timestamptz default now()
  * );
+ * alter table members enable row level security;
+ * create policy "service role access" on members using (true) with check (true);
  *
- * Storage: create a bucket called `member-photos` (public: false).
+ * Storage bucket: create one called `member-photos` in Supabase Storage.
  */
 
-import formidable from 'formidable'
-import { readFileSync } from 'fs'
 import { supabase } from './_lib/supabase.js'
 import { sendConfirmationEmail } from './_lib/email.js'
 
-export const config = { api: { bodyParser: false } }
+// Tell Vercel to keep the raw body so we can read multipart data
+export const config = {
+  api: { bodyParser: { sizeLimit: '6mb' } },
+}
 
-const clean = (s) => (typeof s === 'string' ? s.trim().replace(/[<>"'`]/g, '') : '')
+const clean = (s) =>
+  typeof s === 'string' ? s.trim().replace(/[<>"'`]/g, '') : ''
 
 const genRef = () =>
   'NX-' + new Date().getFullYear() + '-' +
   Math.random().toString(36).slice(2, 6).toUpperCase() + '-' +
   Math.random().toString(36).slice(2, 7).toUpperCase()
 
-function parseForm(req) {
-  return new Promise((resolve, reject) => {
-    const form = formidable({
-      maxFileSize: 5 * 1024 * 1024,
-      keepExtensions: true,
-      filter: ({ mimetype }) =>
-        ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(mimetype),
-    })
-    form.parse(req, (err, fields, files) => {
-      if (err) reject(err)
-      else resolve({ fields, files })
-    })
-  })
-}
-
 export default async function handler(req, res) {
-  // CORS headers (Vercel handles most, but explicit for preflight)
+  // ── CORS ──────────────────────────────────────────────────────────────────
   res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   if (req.method === 'OPTIONS') return res.status(200).end()
-  if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
+  if (req.method !== 'POST')
+    return res.status(405).json({ message: 'Method not allowed' })
+
+  // ── Check Supabase is configured ──────────────────────────────────────────
+  if (!supabase) {
+    return res.status(503).json({
+      message: 'Database not configured. Please add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to your Vercel environment variables.',
+    })
+  }
 
   try {
-    const { fields, files } = await parseForm(req)
+    // Vercel auto-parses JSON and URL-encoded bodies.
+    // For multipart/form-data with a photo we read req.body (fields)
+    // and handle the base64 photo separately sent as a JSON field.
+    const body = req.body || {}
 
-    // formidable returns arrays for every field
-    const f = (key) => clean(Array.isArray(fields[key]) ? fields[key][0] : fields[key] || '')
-    const raw = (key) => Array.isArray(fields[key]) ? fields[key][0] : fields[key]
+    const givenNames  = clean(body.givenNames  || '')
+    const surname     = clean(body.surname     || '')
+    const dob         = (body.dob         || '').trim()
+    const gender      = clean(body.gender      || '')
+    const email       = clean(body.email       || '')
+    const phone       = clean(body.phone       || '')
+    const state       = clean(body.state       || '')
+    const lga         = clean(body.lga         || '')
+    const ward        = clean(body.ward        || '')
+    const pvc         = clean(body.pvc         || '')
+    const affiliation = clean(body.affiliation || '')
+    const address     = clean(body.address     || '')
+    const agree       = body.agree
+    const photoBase64 = body.photoBase64 || null   // optional base64 photo string
 
-    const givenNames = f('givenNames')
-    const surname    = f('surname')
-    const dob        = raw('dob') || ''
-    const gender     = f('gender')
-    const email      = f('email')
-    const phone      = f('phone')
-    const state      = f('state')
-    const lga        = f('lga')
-    const ward       = f('ward')
-    const pvc        = f('pvc')
-    const affiliation= f('affiliation')
-    const address    = f('address')
-    const agree      = raw('agree')
-
-    /* ── Validation ── */
+    // ── Validation ────────────────────────────────────────────────────────
     const errs = {}
-    if (!givenNames) errs.givenNames = 'Given name(s) required'
-    if (!surname)    errs.surname    = 'Surname required'
-    if (!dob)        errs.dob        = 'Date of birth required'
-    if (!gender)     errs.gender     = 'Gender required'
-    if (!phone)      errs.phone      = 'Phone required'
-    if (!state)      errs.state      = 'State required'
-    if (!lga)        errs.lga        = 'LGA required'
-    if (!ward)       errs.ward       = 'Ward required'
+    if (!givenNames)  errs.givenNames = 'Given name(s) required'
+    if (!surname)     errs.surname    = 'Surname required'
+    if (!dob)         errs.dob        = 'Date of birth required'
+    if (!gender)      errs.gender     = 'Gender required'
+    if (!phone)       errs.phone      = 'Phone required'
+    if (!state)       errs.state      = 'State required'
+    if (!lga)         errs.lga        = 'LGA required'
+    if (!ward)        errs.ward       = 'Ward required'
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errs.email = 'Valid email required'
     }
 
     if (!['true', '1', 'on'].includes(String(agree).toLowerCase())) {
-      errs.agree = 'Agreement required'
+      errs.agree = 'You must agree to the terms'
     }
 
     if (dob) {
@@ -111,11 +106,10 @@ export default async function handler(req, res) {
       if (age < 18) errs.dob = 'Must be 18 or older'
     }
 
-    if (Object.keys(errs).length) {
+    if (Object.keys(errs).length)
       return res.status(422).json({ message: 'Validation failed', errors: errs })
-    }
 
-    /* ── Duplicate email check (Supabase) ── */
+    // ── Duplicate email ───────────────────────────────────────────────────
     const { data: existing } = await supabase
       .from('members')
       .select('id')
@@ -129,29 +123,39 @@ export default async function handler(req, res) {
       })
     }
 
-    /* ── Upload photo to Supabase Storage ── */
+    // ── Upload photo to Supabase Storage (if provided as base64) ──────────
     let photoUrl = null
-    const photoFile = files.photo?.[0] || files.photo
-    if (photoFile?.filepath) {
-      const buf  = readFileSync(photoFile.filepath)
-      const ext  = (photoFile.originalFilename || 'photo.jpg').split('.').pop().toLowerCase()
-      const name = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    if (photoBase64) {
+      try {
+        // Strip data URI prefix: "data:image/jpeg;base64,..."
+        const matches = photoBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9+.]+);base64,(.+)$/)
+        if (matches) {
+          const mimeType = matches[1]
+          const base64Data = matches[2]
+          const buffer = Buffer.from(base64Data, 'base64')
+          const ext  = mimeType.split('/')[1].replace('jpeg', 'jpg')
+          const name = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
-      const { error: uploadErr } = await supabase.storage
-        .from('member-photos')
-        .upload(name, buf, { contentType: photoFile.mimetype || 'image/jpeg', upsert: false })
+          const { error: uploadErr } = await supabase.storage
+            .from('member-photos')
+            .upload(name, buffer, { contentType: mimeType, upsert: false })
 
-      if (!uploadErr) {
-        const { data: urlData } = supabase.storage
-          .from('member-photos')
-          .getPublicUrl(name)
-        photoUrl = urlData?.publicUrl || null
-      } else {
-        console.warn('[photo upload]', uploadErr.message)
+          if (!uploadErr) {
+            const { data: urlData } = supabase.storage
+              .from('member-photos')
+              .getPublicUrl(name)
+            photoUrl = urlData?.publicUrl || null
+          } else {
+            console.warn('[photo]', uploadErr.message)
+          }
+        }
+      } catch (photoErr) {
+        console.warn('[photo error]', photoErr.message)
+        // Don't fail registration because of a photo error
       }
     }
 
-    /* ── Insert member into Supabase DB ── */
+    // ── Insert member ─────────────────────────────────────────────────────
     const ref = genRef()
     const { data: member, error: insertErr } = await supabase
       .from('members')
@@ -166,9 +170,9 @@ export default async function handler(req, res) {
         state,
         lga,
         ward,
-        pvc:          pvc || null,
+        pvc:          pvc  || null,
         affiliation:  affiliation || null,
-        address:      address || null,
+        address:      address     || null,
         photo_url:    photoUrl,
       })
       .select()
@@ -176,11 +180,13 @@ export default async function handler(req, res) {
 
     if (insertErr) {
       console.error('[insert]', insertErr.message)
-      return res.status(500).json({ message: 'Failed to save registration' })
+      return res.status(500).json({ message: 'Failed to save registration. Please try again.' })
     }
 
-    /* ── Send confirmation email (fire-and-forget) ── */
-    sendConfirmationEmail(member)
+    // ── Send confirmation email ───────────────────────────────────────────
+    sendConfirmationEmail(member).catch(err =>
+      console.error('[email]', err.message)
+    )
 
     return res.status(201).json({
       message:   'Registration successful',
@@ -191,6 +197,6 @@ export default async function handler(req, res) {
     })
   } catch (err) {
     console.error('[register]', err.message)
-    return res.status(500).json({ message: 'Internal server error' })
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 }

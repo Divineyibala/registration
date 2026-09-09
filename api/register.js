@@ -179,8 +179,10 @@ export default async function handler(req, res) {
       .single()
 
     if (insertErr) {
-      console.error('[insert]', insertErr.message)
-      return res.status(500).json({ message: 'Failed to save registration. Please try again.' })
+      console.error('[insert]', insertErr.message, insertErr.code, insertErr.details)
+      return res.status(500).json({
+        message: `Failed to save registration: ${insertErr.message} (${insertErr.code})`,
+      })
     }
 
     // ── Send confirmation email ───────────────────────────────────────────
@@ -197,6 +199,6 @@ export default async function handler(req, res) {
     })
   } catch (err) {
     console.error('[register]', err.message)
-    return res.status(500).json({ message: 'Something went wrong. Please try again.' })
+    return res.status(500).json({ message: `Server error: ${err.message}` })
   }
 }

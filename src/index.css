@@ -1,0 +1,100 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* ── Brand palette: Deep Forest Green + Gold + Cream ── */
+  --green-900:  #0a1f0e;
+  --green-800:  #112a15;
+  --green-700:  #1a3d20;
+  --green-600:  #245c2a;
+  --green-500:  #2e7d32;
+  --green-400:  #388e3c;
+  --green-300:  #66bb6a;
+  --green-100:  #e8f5e9;
+  --green-50:   #f1f8f1;
+
+  --gold-700:   #b8860b;
+  --gold-600:   #c9960d;
+  --gold-500:   #d4a017;
+  --gold-400:   #e0b840;
+  --gold-300:   #f0d060;
+  --gold-100:   #fdf6e3;
+  --gold-50:    #fffdf5;
+
+  --cream:      #faf7f0;
+  --white:      #ffffff;
+
+  --gray-900:   #111827;
+  --gray-800:   #1f2937;
+  --gray-700:   #374151;
+  --gray-600:   #4b5563;
+  --gray-500:   #6b7280;
+  --gray-400:   #9ca3af;
+  --gray-300:   #d1d5db;
+  --gray-200:   #e5e7eb;
+  --gray-100:   #f3f4f6;
+  --gray-50:    #f9fafb;
+
+  --red-500:    #dc2626;
+  --red-100:    #fee2e2;
+
+  /* Semantic aliases */
+  --primary:        var(--green-600);
+  --primary-dark:   var(--green-800);
+  --primary-light:  var(--green-50);
+  --accent:         var(--gold-500);
+  --accent-light:   var(--gold-100);
+  --text-main:      var(--gray-900);
+  --text-muted:     var(--gray-600);
+  --border:         var(--gray-200);
+
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
+
+  --radius-sm:  4px;
+  --radius:     8px;
+  --radius-lg:  12px;
+  --radius-xl:  18px;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.07);
+  --shadow:     0 4px 14px rgba(0,0,0,.10);
+  --shadow-lg:  0 10px 36px rgba(0,0,0,.15);
+  --shadow-xl:  0 20px 60px rgba(0,0,0,.20);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--cream);
+  color: var(--text-main);
+  line-height: 1.6;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+
+input, select, textarea { font-family: var(--font); font-size: 14px; outline: none; }
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(36,92,42,.15) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--gray-100); }
+::-webkit-scrollbar-thumb { background: var(--green-300); border-radius: 3px; }
+
+/* Print helper */
+@media print {
+  body { background: white; }
+  .no-print { display: none !important; }
+}

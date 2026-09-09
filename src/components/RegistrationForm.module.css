@@ -1,0 +1,483 @@
+/* ── Card wrapper ── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--gray-200);
+}
+
+.cardPad { padding: 28px 28px 32px; }
+
+/* ── Card header ── */
+.cardHead {
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%);
+  padding: 26px 28px 0;
+}
+
+.cardHeadTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--white);
+  letter-spacing: .06em;
+  margin-bottom: 5px;
+}
+
+.cardSubtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  line-height: 1.5;
+  max-width: 340px;
+}
+
+.dotGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 6px);
+  gap: 4px;
+  opacity: .25;
+  margin-top: 4px;
+}
+
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold-300);
+}
+
+/* ── Step bar ── */
+.stepBar {
+  display: flex;
+  align-items: center;
+  margin-bottom: -1px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px 14px;
+  border-bottom: 2px solid transparent;
+}
+
+.step_active { border-bottom-color: var(--gold-400); }
+.step_done   { border-bottom-color: #4ade80; }
+
+.stepCircle {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step_active .stepCircle { background: var(--gold-500); color: var(--green-900); }
+.step_done   .stepCircle { background: #22c55e; color: var(--white); }
+.step_idle   .stepCircle { background: rgba(255,255,255,.15); color: rgba(255,255,255,.5); }
+
+.stepLabel { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.step_active .stepLabel { color: var(--gold-300); }
+.step_done   .stepLabel { color: #86efac; }
+.step_idle   .stepLabel { color: rgba(255,255,255,.35); }
+
+.stepLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,.15);
+  margin: 0 -2px;
+}
+.stepLineDone { background: #4ade80; }
+
+/* ── Form ── */
+.form {
+  padding: 28px 28px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Section title ── */
+.secTitle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: -4px;
+}
+
+.secIcon {
+  width: 28px; height: 28px;
+  background: var(--green-100);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--green-700);
+  flex-shrink: 0;
+}
+
+.secTitleText {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green-900);
+}
+
+.ageTip {
+  font-size: 11.5px;
+  color: var(--gray-500);
+  margin-top: -12px;
+}
+
+/* ── Grid ── */
+.g2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── Field group ── */
+.fg { display: flex; flex-direction: column; gap: 5px; }
+
+.label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.req { color: var(--red-500); }
+
+.hint {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gray-400);
+  letter-spacing: .06em;
+}
+
+.err {
+  font-size: 11.5px;
+  color: var(--red-500);
+}
+
+/* ── Inputs ── */
+.inp {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  color: var(--gray-900);
+  background: var(--white);
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.inp:hover { border-color: var(--gray-300); }
+
+.selWrap { position: relative; }
+
+.sel {
+  width: 100%;
+  padding: 10px 34px 10px 13px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  color: var(--gray-900);
+  background: var(--white);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.sel:hover   { border-color: var(--gray-300); }
+.sel:disabled { background: var(--gray-50); color: var(--gray-400); cursor: not-allowed; }
+
+.selArr {
+  position: absolute;
+  right: 11px; top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--gray-400);
+  display: flex; align-items: center;
+}
+
+.ta {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  color: var(--gray-900);
+  background: var(--white);
+  resize: vertical;
+  min-height: 76px;
+  font-family: var(--font);
+  line-height: 1.55;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.ta:hover { border-color: var(--gray-300); }
+
+/* ── Photo ── */
+.photoDesc {
+  font-size: 12.5px;
+  color: var(--gray-500);
+  line-height: 1.6;
+  margin-top: -8px;
+}
+
+.photoArea {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: var(--green-50);
+  border: 1.5px dashed var(--green-300);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.photoPreview {
+  width: 72px; height: 86px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--gray-200);
+  border: 2px solid var(--gray-300);
+  flex-shrink: 0;
+}
+
+.photoImg { width:100%; height:100%; object-fit:cover; }
+
+.photoPlaceholder {
+  width:100%; height:100%;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:5px; font-size:9px; color:var(--gray-400);
+}
+
+.photoActions {
+  display:flex; flex-direction:column; gap:9px; flex:1;
+}
+
+.fileInp { display:none; }
+
+.uploadBtn {
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--green-600); color:var(--white);
+  padding:9px 18px; border-radius:var(--radius);
+  font-size:13px; font-weight:700; width:fit-content;
+  transition:background .15s, transform .1s;
+}
+.uploadBtn:hover { background:var(--green-500); transform:translateY(-1px); }
+
+.camBtn {
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--white); color:var(--gray-700);
+  padding:9px 18px; border-radius:var(--radius);
+  font-size:13px; font-weight:600; width:fit-content;
+  border:1.5px solid var(--gray-200);
+  transition:.15s;
+}
+.camBtn:hover { border-color:var(--green-500); color:var(--green-700); background:var(--green-50); }
+
+.photoHint { font-size:11px; color:var(--gray-400); line-height:1.5; }
+
+/* ── Camera overlay ── */
+.camOverlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.78);
+  display:flex; align-items:center; justify-content:center;
+  z-index:300;
+}
+.camBox {
+  background:var(--white); border-radius:var(--radius-xl);
+  padding:20px; display:flex; flex-direction:column; gap:14px;
+  max-width:480px; width:92%;
+}
+.camVideo { width:100%; border-radius:var(--radius); background:#000; }
+.camBtns  { display:flex; gap:10px; }
+.snapBtn  {
+  flex:1; background:var(--green-600); color:var(--white);
+  padding:11px; border-radius:var(--radius); font-size:14px; font-weight:700;
+  transition:background .15s;
+}
+.snapBtn:hover { background:var(--green-500); }
+.cancelCamBtn {
+  flex:1; background:var(--gray-100); color:var(--gray-700);
+  padding:11px; border-radius:var(--radius); font-size:14px; font-weight:600;
+  border:1px solid var(--gray-200);
+}
+
+/* ── Agreement ── */
+.agreementBox {
+  background:var(--green-50);
+  border:1.5px solid var(--green-300);
+  border-radius:var(--radius-lg);
+  padding:16px;
+  display:flex; flex-direction:column; gap:8px;
+}
+
+.checkRow { display:flex; align-items:flex-start; gap:10px; cursor:pointer; }
+.checkboxHidden { display:none; }
+
+.checkCustom {
+  width:19px; height:19px;
+  border:2px solid var(--gray-300);
+  border-radius:5px;
+  background:var(--white);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:1px;
+  transition:.15s;
+}
+.checkCustomOn {
+  background:var(--green-600);
+  border-color:var(--green-600);
+}
+
+.checkText {
+  font-size:12.5px; color:var(--gray-600); line-height:1.65;
+}
+.checkText a { color:var(--green-600); font-weight:600; }
+
+/* ── Navigation ── */
+.nav {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:26px;
+  padding-bottom:26px;
+}
+
+.backBtn {
+  background:none; color:var(--gray-600);
+  font-size:13.5px; font-weight:600;
+  padding:10px 18px; border-radius:var(--radius);
+  border:1.5px solid var(--gray-200); transition:.15s;
+}
+.backBtn:hover { background:var(--gray-50); border-color:var(--gray-300); }
+
+.nextBtn {
+  background:var(--green-600); color:var(--white);
+  font-size:14px; font-weight:700;
+  padding:11px 28px; border-radius:var(--radius);
+  transition:background .15s, transform .1s;
+  margin-left:auto;
+}
+.nextBtn:hover { background:var(--green-500); transform:translateY(-1px); }
+
+.submitBtn {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg, var(--green-700), var(--green-500));
+  color:var(--white); font-size:14px; font-weight:700;
+  padding:13px 32px; border-radius:var(--radius);
+  transition:.15s; letter-spacing:.03em;
+  margin-left:auto;
+  box-shadow:0 4px 14px rgba(36,92,42,.35);
+}
+.submitBtn:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
+.submitBtn:disabled { opacity:.6; cursor:not-allowed; }
+
+.spinner {
+  width:14px; height:14px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  display:inline-block;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Security row */
+.secRow {
+  display:flex; align-items:center; gap:6px;
+  justify-content:center;
+  font-size:11px; color:var(--gray-400);
+  padding: 0 28px 18px;
+}
+.sep { color:var(--gray-300); }
+
+/* Error box */
+.errBox {
+  background:var(--red-100); border:1px solid #fca5a5;
+  color:var(--red-500); font-size:13px;
+  padding:10px 14px; border-radius:var(--radius);
+  margin-top:4px;
+}
+
+/* Login CTA */
+.loginCta {
+  border-top:1px solid var(--gray-100);
+  padding:16px 28px;
+  text-align:center;
+  font-size:13px; color:var(--gray-500);
+}
+.loginCtaBtn {
+  background:none; color:var(--green-600);
+  font-size:13px; font-weight:700;
+  padding:0 2px;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.loginCtaBtn:hover { color:var(--green-500); }
+
+/* ── Login Modal ── */
+.overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200; padding:20px;
+}
+.modal {
+  background:var(--white); border-radius:var(--radius-xl);
+  padding:32px; width:100%; max-width:420px;
+  box-shadow:var(--shadow-xl); position:relative;
+  display:flex; flex-direction:column; gap:20px;
+}
+.modalClose {
+  position:absolute; top:14px; right:16px;
+  background:none; font-size:24px; color:var(--gray-400);
+  line-height:1; padding:2px 6px; border-radius:4px;
+}
+.modalClose:hover { background:var(--gray-100); color:var(--gray-700); }
+
+.modalHead { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.modalIconWrap {
+  width:44px; height:44px;
+  background:var(--green-100);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--green-700);
+}
+.modalTitle { font-size:20px; font-weight:800; color:var(--green-900); }
+.modalSub   { font-size:13px; color:var(--gray-500); }
+.modalForm  { display:flex; flex-direction:column; gap:16px; }
+
+.loginSubmitBtn {
+  width:100%; background:var(--green-600); color:var(--white);
+  padding:12px; border-radius:var(--radius);
+  font-size:14px; font-weight:700; transition:background .15s;
+  margin-top:2px;
+}
+.loginSubmitBtn:hover:not(:disabled) { background:var(--green-500); }
+.loginSubmitBtn:disabled { opacity:.6; cursor:not-allowed; }
+
+.forgotRow { text-align:center; font-size:12.5px; color:var(--gray-500); }
+
+/* ── Responsive ── */
+@media (max-width:600px) {
+  .cardHead, .form { padding-left:18px; padding-right:18px; }
+  .cardPad { padding:18px; }
+  .g2 { grid-template-columns:1fr; }
+  .stepLabel { display:none; }
+  .step { padding:12px 8px 14px; }
+  .photoArea { flex-direction:column; }
+  .loginCta { padding:14px 18px; }
+}

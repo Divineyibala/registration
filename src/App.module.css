@@ -1,0 +1,35 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+}
+
+.main {
+  flex: 1;
+  padding: 44px 0 64px;
+}
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 52px;
+  align-items: start;
+}
+
+.right {
+  position: sticky;
+  top: 110px;
+}
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; gap: 36px; }
+  .right   { position: static; }
+  .main    { padding: 28px 0 48px; }
+}

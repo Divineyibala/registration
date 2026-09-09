@@ -5,71 +5,116 @@
 }
 
 :root {
-  /* ── Brand palette: Deep Forest Green + Gold + Cream ── */
-  --green-900:  #0a1f0e;
-  --green-800:  #112a15;
-  --green-700:  #1a3d20;
-  --green-600:  #245c2a;
-  --green-500:  #2e7d32;
-  --green-400:  #388e3c;
-  --green-300:  #66bb6a;
-  --green-100:  #e8f5e9;
-  --green-50:   #f1f8f1;
+  /* ── Primary: Deep Navy Blue ── */
+  --navy-950:  #020617;
+  --navy-900:  #0f172a;
+  --navy-800:  #1e293b;
+  --navy-700:  #253350;
+  --navy-600:  #2d4168;
+  --navy-500:  #3b5280;
+  --navy-400:  #5b7aa8;
+  --navy-300:  #8aadd4;
+  --navy-100:  #dce8f5;
+  --navy-50:   #f0f5fb;
 
-  --gold-700:   #b8860b;
-  --gold-600:   #c9960d;
-  --gold-500:   #d4a017;
-  --gold-400:   #e0b840;
-  --gold-300:   #f0d060;
-  --gold-100:   #fdf6e3;
-  --gold-50:    #fffdf5;
+  /* ── Accent: Electric Teal ── */
+  --teal-900:  #042f2e;
+  --teal-800:  #0f4a48;
+  --teal-700:  #0f6460;
+  --teal-600:  #0d7c76;
+  --teal-500:  #0d9488;   /* primary action */
+  --teal-400:  #14b8a6;
+  --teal-300:  #5eead4;
+  --teal-100:  #ccfbf1;
+  --teal-50:   #f0fdfa;
 
-  --cream:      #faf7f0;
-  --white:      #ffffff;
+  /* ── Highlight: Amber / Gold ── */
+  --amber-700: #b45309;
+  --amber-600: #d97706;
+  --amber-500: #f59e0b;
+  --amber-400: #fbbf24;
+  --amber-300: #fcd34d;
+  --amber-100: #fef3c7;
+  --amber-50:  #fffbeb;
 
-  --gray-900:   #111827;
-  --gray-800:   #1f2937;
-  --gray-700:   #374151;
-  --gray-600:   #4b5563;
-  --gray-500:   #6b7280;
-  --gray-400:   #9ca3af;
-  --gray-300:   #d1d5db;
-  --gray-200:   #e5e7eb;
-  --gray-100:   #f3f4f6;
-  --gray-50:    #f9fafb;
+  /* ── Neutrals ── */
+  --white:     #ffffff;
+  --off-white: #f8fafc;
 
-  --red-500:    #dc2626;
-  --red-100:    #fee2e2;
+  --gray-900:  #0f172a;
+  --gray-800:  #1e293b;
+  --gray-700:  #334155;
+  --gray-600:  #475569;
+  --gray-500:  #64748b;
+  --gray-400:  #94a3b8;
+  --gray-300:  #cbd5e1;
+  --gray-200:  #e2e8f0;
+  --gray-100:  #f1f5f9;
+  --gray-50:   #f8fafc;
 
-  /* Semantic aliases */
-  --primary:        var(--green-600);
-  --primary-dark:   var(--green-800);
-  --primary-light:  var(--green-50);
-  --accent:         var(--gold-500);
-  --accent-light:   var(--gold-100);
-  --text-main:      var(--gray-900);
-  --text-muted:     var(--gray-600);
-  --border:         var(--gray-200);
+  /* ── Status ── */
+  --red-600:   #dc2626;
+  --red-500:   #ef4444;
+  --red-100:   #fee2e2;
+  --green-500: #22c55e;
+  --green-400: #4ade80;
+  --green-100: #dcfce7;
 
-  --font: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Courier New', Courier, monospace;
+  /* ── Semantic aliases (used across all module CSS) ──
+     These are the only names referenced in component files.
+     Swap the entire palette here; zero component edits needed. */
+  --green-900:  var(--navy-900);   /* navbar / card header bg */
+  --green-800:  var(--navy-800);   /* success title, ref num  */
+  --green-700:  var(--navy-700);   /* submit gradient start   */
+  --green-600:  var(--teal-500);   /* primary buttons / links */
+  --green-500:  var(--teal-400);   /* button hover            */
+  --green-400:  var(--teal-300);   /* light accents           */
+  --green-300:  var(--teal-300);   /* borders / scrollbar     */
+  --green-100:  var(--teal-100);   /* icon chip bg            */
+  --green-50:   var(--teal-50);    /* subtle section bg       */
 
-  --radius-sm:  4px;
-  --radius:     8px;
-  --radius-lg:  12px;
-  --radius-xl:  18px;
+  --gold-700:   var(--amber-700);
+  --gold-600:   var(--amber-600);
+  --gold-500:   var(--amber-500);
+  --gold-400:   var(--amber-400);
+  --gold-300:   var(--amber-300);
+  --gold-100:   var(--amber-100);
+  --gold-50:    var(--amber-50);
 
-  --shadow-sm:  0 1px 3px rgba(0,0,0,.07);
-  --shadow:     0 4px 14px rgba(0,0,0,.10);
-  --shadow-lg:  0 10px 36px rgba(0,0,0,.15);
-  --shadow-xl:  0 20px 60px rgba(0,0,0,.20);
+  --cream:      var(--off-white);
+
+  /* ── Typography ── */
+  --font:       'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:  'Courier New', Courier, monospace;
+
+  /* ── Spacing / Shape ── */
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 18px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(15,23,42,.08);
+  --shadow:    0 4px 14px rgba(15,23,42,.12);
+  --shadow-lg: 0 10px 36px rgba(15,23,42,.16);
+  --shadow-xl: 0 20px 60px rgba(15,23,42,.22);
+
+  /* ── Legacy aliases kept for any direct usage ── */
+  --primary:       var(--teal-500);
+  --primary-dark:  var(--navy-900);
+  --primary-light: var(--teal-50);
+  --accent:        var(--amber-500);
+  --accent-light:  var(--amber-100);
+  --text-main:     var(--gray-900);
+  --text-muted:    var(--gray-600);
+  --border:        var(--gray-200);
 }
 
 html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font);
-  background: var(--cream);
+  background: var(--off-white);
   color: var(--text-main);
   line-height: 1.6;
   font-size: 14px;
@@ -81,19 +126,23 @@ a:hover { text-decoration: underline; }
 
 button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
 
-input, select, textarea { font-family: var(--font); font-size: 14px; outline: none; }
+input, select, textarea {
+  font-family: var(--font);
+  font-size: 14px;
+  outline: none;
+}
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(36,92,42,.15) !important;
+  box-shadow: 0 0 0 3px rgba(13,148,136,.18) !important;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--gray-100); }
-::-webkit-scrollbar-thumb { background: var(--green-300); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--teal-400); border-radius: 3px; }
 
-/* Print helper */
+/* Print */
 @media print {
   body { background: white; }
   .no-print { display: none !important; }

@@ -134,13 +134,16 @@ app.post('/api/register', upload.single('photo'), async (req, res) => {
     if (!clean(surname))     errs.surname    = 'Surname required'
     if (!dob)                errs.dob        = 'Date of birth required'
     if (!gender)             errs.gender     = 'Gender required'
-    if (!clean(email) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    if (!clean(email) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errs.email = 'Valid email required'
+    } else if (members.some(m => m.email === clean(email).toLowerCase())) {
+      errs.email = 'An account with this email already exists'
+    }
     if (!clean(phone))       errs.phone      = 'Phone required'
     if (!state)              errs.state      = 'State required'
     if (!lga)                errs.lga        = 'LGA required'
     if (!ward)               errs.ward       = 'Ward required'
-    if (agree !== 'true' && agree !== true)
+    if (![true, 'true', '1', 'on'].includes(agree))
       errs.agree = 'Agreement required'
 
     /* Age check */
@@ -148,10 +151,6 @@ app.post('/api/register', upload.single('photo'), async (req, res) => {
       const age = (Date.now() - new Date(dob)) / (1000 * 60 * 60 * 24 * 365.25)
       if (age < 18) errs.dob = 'Must be 18 or older'
     }
-
-    /* Duplicate email */
-    if (members.some(m => m.email === clean(email).toLowerCase()))
-      errs.email = 'An account with this email already exists'
 
     if (Object.keys(errs).length)
       return res.status(422).json({ message: 'Validation failed', errors: errs })

@@ -69,7 +69,7 @@
 }
 
 .step_active { border-bottom-color: var(--gold-400); }
-.step_done   { border-bottom-color: #4ade80; }
+.step_done   { border-bottom-color: var(--green-500); }
 
 .stepCircle {
   width: 22px; height: 22px;
@@ -80,12 +80,12 @@
 }
 
 .step_active .stepCircle { background: var(--gold-500); color: var(--green-900); }
-.step_done   .stepCircle { background: #22c55e; color: var(--white); }
+.step_done   .stepCircle { background: var(--teal-500); color: var(--white); }
 .step_idle   .stepCircle { background: rgba(255,255,255,.15); color: rgba(255,255,255,.5); }
 
 .stepLabel { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
 .step_active .stepLabel { color: var(--gold-300); }
-.step_done   .stepLabel { color: #86efac; }
+.step_done   .stepLabel { color: var(--teal-300); }
 .step_idle   .stepLabel { color: rgba(255,255,255,.35); }
 
 .stepLine {
@@ -94,7 +94,7 @@
   background: rgba(255,255,255,.15);
   margin: 0 -2px;
 }
-.stepLineDone { background: #4ade80; }
+.stepLineDone { background: var(--teal-400); }
 
 /* ── Form ── */
 .form {
@@ -406,8 +406,8 @@
 
 /* Error box */
 .errBox {
-  background:var(--red-100); border:1px solid #fca5a5;
-  color:var(--red-500); font-size:13px;
+  background: var(--red-100); border:1px solid #fca5a5;
+  color: var(--red-500); font-size:13px;
   padding:10px 14px; border-radius:var(--radius);
   margin-top:4px;
 }

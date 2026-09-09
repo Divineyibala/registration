@@ -108,7 +108,7 @@
 
 /* Tab bar */
 .tabBar {
-  background: var(--green-800);
+  background: var(--navy-800);
   border-top: 1px solid rgba(255,255,255,.06);
 }
 
@@ -147,7 +147,7 @@
 .liveDot {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #4ade80;
+  background: var(--green-400);
   animation: pulse 2s infinite;
 }
 
@@ -178,7 +178,7 @@
 .cycleGreen {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #4ade80;
+  background: var(--green-400);
   display: inline-block;
 }
 

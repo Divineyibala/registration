@@ -9,7 +9,7 @@ const ShieldCheck = () => (
       strokeLinecap="round" strokeLinejoin="round"/>
     <defs>
       <linearGradient id="scg" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#2e7d32"/><stop offset="1" stopColor="#1a3d20"/>
+        <stop stopColor="#0d9488"/><stop offset="1" stopColor="#0f172a"/>
       </linearGradient>
     </defs>
   </svg>

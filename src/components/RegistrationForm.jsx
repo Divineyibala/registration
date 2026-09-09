@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import styles from './RegistrationForm.module.css'
 import { STATES, LGAS, WARDS, AFFILIATIONS } from '../data/nigeriaData.js'
 import MembershipCard from './MembershipCard.jsx'
+import RegistrationLoader from './RegistrationLoader.jsx'
 
 /* ── Icon helpers ── */
 const Ic = ({ d, size = 15 }) => (
@@ -172,6 +173,8 @@ export default function RegistrationForm() {
   const [showLogin, setShowLogin] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [memberData, setMemberData] = useState(null)   // success state
+  const [showLoader, setShowLoader] = useState(false)  // loading animation
+  const [pendingMember, setPendingMember] = useState(null) // data ready but held until animation done
   const fileRef  = useRef()
   const videoRef = useRef()
   const streamRef= useRef()
@@ -220,23 +223,68 @@ export default function RegistrationForm() {
     const e3 = validateStep3(form)
     if (Object.keys(e3).length) { setErrors(e3); return }
     setSubmitting(true)
+    setShowLoader(true)
     try {
       const fd = new FormData()
       Object.entries(form).forEach(([k, v]) => {
-        if (k === 'photo' && v) fd.append('photo', v, 'photo.jpg')
-        else if (k !== 'photoPreview') fd.append(k, String(v))
+        if (k === 'photoPreview') return          // never send the object URL
+        if (k === 'photo') {
+          if (v) fd.append('photo', v, 'photo.jpg')  // blob/file only if set
+          return
+        }
+        if (k === 'agree') {
+          fd.append('agree', v ? 'true' : 'false')   // explicit string 'true'/'false'
+          return
+        }
+        if (v !== null && v !== undefined) {
+          fd.append(k, String(v))
+        }
       })
       const res  = await fetch('/api/register', { method: 'POST', body: fd })
       const data = await res.json()
-      if (!res.ok) { setErrors({ submit: data.message || 'Registration failed' }); return }
-      setMemberData({
+      if (!res.ok) {
+        setShowLoader(false)
+        // Surface field-level errors from the server onto the form
+        if (data.errors) {
+          setErrors(data.errors)
+          // Jump back to the step containing the first error
+          const step1Fields = ['givenNames','surname','dob','gender','email','phone']
+          const step2Fields = ['state','lga','ward']
+          const errKeys = Object.keys(data.errors)
+          if (errKeys.some(k => step1Fields.includes(k))) setStep(1)
+          else if (errKeys.some(k => step2Fields.includes(k))) setStep(2)
+          else setStep(3)
+        }
+        setErrors(prev => ({ ...prev, submit: data.message || 'Registration failed' }))
+        return
+      }
+      // Stash the result — loader will reveal it once animation completes
+      setPendingMember({
         ...form,
         ref:       data.ref,
         createdAt: new Date().toISOString(),
       })
-    } catch { setErrors({ submit: 'Network error. Please try again.' }) }
-    finally  { setSubmitting(false) }
+    } catch {
+      setShowLoader(false)
+      setErrors({ submit: 'Network error. Please try again.' })
+    } finally {
+      setSubmitting(false)
+    }
   }
+
+  // Called by loader when its animation sequence finishes
+  const handleLoaderDone = () => {
+    setShowLoader(false)
+    setMemberData(pendingMember)
+  }
+
+  // If API replied before animation finished, keep loader running
+  // If API is still in flight when animation finishes, wait for data
+  useEffect(() => {
+    if (!showLoader && pendingMember && !memberData) {
+      setMemberData(pendingMember)
+    }
+  }, [showLoader, pendingMember, memberData])
 
   /* ── Success: show ID card ── */
   if (memberData) {
@@ -251,6 +299,13 @@ export default function RegistrationForm() {
 
   return (
     <>
+      {showLoader && (
+        <RegistrationLoader
+          name={`${form.givenNames} ${form.surname}`.trim()}
+          onDone={handleLoaderDone}
+        />
+      )}
+
       {showLogin && <LoginModal onClose={() => setShowLogin(false)}/>}
 
       {showCam && (

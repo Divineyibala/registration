@@ -9,8 +9,8 @@ const ShieldIcon = () => (
       strokeLinecap="round" strokeLinejoin="round"/>
     <defs>
       <linearGradient id="ng" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#2e7d32"/>
-        <stop offset="100%" stopColor="#1a3d20"/>
+        <stop offset="0%" stopColor="#0d9488"/>
+        <stop offset="100%" stopColor="#0f172a"/>
       </linearGradient>
     </defs>
   </svg>

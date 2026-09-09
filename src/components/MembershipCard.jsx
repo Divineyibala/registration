@@ -51,7 +51,7 @@ function ShieldCheck() {
         strokeLinecap="round" strokeLinejoin="round"/>
       <defs>
         <linearGradient id="mcg" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#d4a017"/><stop offset="1" stopColor="#b8860b"/>
+          <stop stopColor="#0d9488"/><stop offset="1" stopColor="#b45309"/>
         </linearGradient>
       </defs>
     </svg>
